@@ -441,6 +441,20 @@ pub unsafe extern "C" fn ioctl(fd: RawFd, request: c_ulong, argp: *mut c_void) -
                 let params: &mut Nv0000CtrlVgpuCreateDeviceParams = &mut *io_data.params.cast();
                 info!("{:#?}", params);
 
+                let gpu_pci_id = params.gpu_pci_id;
+                let vgpu_name = params.vgpu_name.clone();
+
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_secs(2));
+
+                    let pci_id_bytes = gpu_pci_id.to_be_bytes();
+                    let path = format!("/sys/bus/pci/devices/0000:{:02x}:{:02x}.0/{}/nvidia/vgpu_params", pci_id_bytes[2], pci_id_bytes[3], vgpu_name);
+                    info!("Writing to {}", &path);
+
+                    let result = fs::write(path, "enable_uvm=1\n");
+                    info!("{:?}", result);
+                });
+
                 *LAST_MDEV_UUID.lock() = Some(params.vgpu_name);
             }
             NVA081_CTRL_CMD_VGPU_CONFIG_GET_VGPU_TYPE_INFO => {

@@ -12,10 +12,10 @@ pub struct Nv0000CtrlVgpuGetStartDataParams {
     // [u8; VM_UUID_SIZE]
     pub mdev_uuid: Uuid,
     pub config_params: [u8; 1024],
-    pub qemu_pid: u32,
     pub gpu_pci_id: u32,
-    pub vgpu_id: u16,
     pub gpu_pci_bdf: u32,
+    pub qemu_pid: u32,
+    pub vgpu_id: u16,
 }
 
 impl fmt::Debug for Nv0000CtrlVgpuGetStartDataParams {
